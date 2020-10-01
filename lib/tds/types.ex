@@ -1,4 +1,7 @@
 defmodule Tds.Types do
+  @moduledoc """
+    Data Types for TDS
+  """
   import Tds.BinaryUtils
   import Tds.Utils
   use Bitwise
@@ -111,7 +114,6 @@ defmodule Tds.Types do
   #
   #  Data Type Decoders
   #
-
   def to_atom(token) do
     case token do
       @tds_data_type_null -> :null
@@ -714,9 +716,9 @@ defmodule Tds.Types do
     size = byte_size(value)
     <<value::little-size(size)-unit(8)>> = value
 
-    Decimal.get_context()
+    Decimal.Context.get()
     |> Map.put(:precision, precision)
-    |> Decimal.set_context()
+    |> Decimal.Context.set()
 
     case sign do
       0 -> Decimal.new(-1, value, -scale)
@@ -725,7 +727,7 @@ defmodule Tds.Types do
   end
 
   def decode_char(data_info, <<data::binary>>) do
-    Tds.Utils.decode_chars(data, data_info.collation.codepage)
+    decode_chars(data, data_info.collation.codepage)
   end
 
   def decode_nchar(_data_info, <<data::binary>>) do
@@ -887,9 +889,9 @@ defmodule Tds.Types do
   end
 
   def encode_decimal_type(%Parameter{value: value}) do
-    d_ctx = Decimal.get_context()
+    d_ctx = Decimal.Context.get()
     d_ctx = %{d_ctx | precision: 38}
-    Decimal.set_context(d_ctx)
+    Decimal.Context.set(d_ctx)
 
     value_list =
       value
@@ -942,9 +944,9 @@ defmodule Tds.Types do
   end
 
   def encode_float_type(%Parameter{value: %Decimal{} = value}) do
-    d_ctx = Decimal.get_context()
+    d_ctx = Decimal.Context.get()
     d_ctx = %{d_ctx | precision: 38}
-    Decimal.set_context(d_ctx)
+    Decimal.Context.set(d_ctx)
 
     value_list =
       value
@@ -1129,9 +1131,9 @@ defmodule Tds.Types do
   end
 
   def encode_decimal_descriptor(%Parameter{value: %Decimal{} = dec}) do
-    d_ctx = Decimal.get_context()
+    d_ctx = Decimal.Context.get()
     d_ctx = %{d_ctx | precision: 38}
-    Decimal.set_context(d_ctx)
+    Decimal.Context.set(d_ctx)
 
     value_list =
       dec
@@ -1282,9 +1284,9 @@ defmodule Tds.Types do
 
   # decimal
   def encode_data(@tds_data_type_decimaln, %Decimal{} = value, attr) do
-    d_ctx = Decimal.get_context()
+    d_ctx = Decimal.Context.get()
     d_ctx = %{d_ctx | precision: 38}
-    Decimal.set_context(d_ctx)
+    Decimal.Context.set(d_ctx)
     precision = attr[:precision]
 
     d =
